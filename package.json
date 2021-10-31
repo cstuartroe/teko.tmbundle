@@ -1,0 +1,26 @@
+{
+    "name": "teko",
+    "displayName": "Teko",
+    "description": "A grammar for the Teko programming language",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.61.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "publisher": "Teko",
+    "contributes": {
+        "languages": [{
+            "id": "teko",
+            "aliases": ["Teko", "teko"],
+            "extensions": [".to"],
+            "configuration": "./language-configuration.json"
+        }],
+        "grammars": [{
+            "language": "teko",
+            "scopeName": "source.teko",
+            "path": "./syntaxes/teko.tmLanguage.json"
+        }]
+    }
+}

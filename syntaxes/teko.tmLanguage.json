@@ -1,0 +1,242 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Teko",
+	"patterns": [{
+		"include": "#expression"
+	}],
+	"repository": {
+		"expression": {
+			"patterns": [
+				{"include": "#line_comment"},
+				{"include": "#block_comment"},
+				{"include": "#type_declaration"},
+				{"include": "#declaration"}
+			]
+		},
+		"line_comment": {
+			"name": "comment.line",
+			"match": "//.*"
+		},
+		"block_comment": {
+			"name": "comment.block",
+			"begin": "/\\*",
+			"end": "\\*/",
+			"patterns": [{"include": "#block_comment"}]
+		},
+		"type_declaration": {
+			"patterns": [
+				{
+					"begin": "(type)\\s*([a-zA-Z_][a-zA-Z0-9_]*)\\s*([^=]*)\\s*(=)\\s*{",
+					"beginCaptures": {
+						"1": {"name": "keyword.control"},
+						"2": {"patterns": [{"include": "#type_identifier"}]},
+						"3": {"patterns": [{"include": "#generics"}]},
+						"4": {"name": "keyword.operator.arithmetic"}
+					},
+					"end": "}",
+					"patterns": [
+						{"include": "#key_colon"},
+						{"include": "#type_expression"},
+						{"match": ","}
+					]
+				},
+				{
+					"match": "(type)\\s*([a-zA-Z_][a-zA-Z0-9_]*)\\s*([^=]*)\\s*(=)\\s*(.+)",
+					"captures": {
+						"1": {"name": "keyword.control"},
+						"2": {"patterns": [{"include": "#type_identifier"}]},
+						"3": {"patterns": [{"include": "#generics"}]},
+						"4": {"name": "keyword.operator.arithmetic"},
+						"5": {"patterns": [{"include": "#type_expression"}]}
+					}
+				}
+			]
+		},
+		"declaration": {
+			"patterns": [
+				{"include": "#function_def"},
+				{"include": "#typehinted"},
+				{"include": "#binop"},
+				{"include": "#binop_expression"}
+			]
+		},
+		"scope": {
+			"begin": "(scope|do)\\s*([a-zA-Z_][a-zA-Z0-9_]*)?\\s*{",
+			"beginCaptures": {
+				"1": {"name": "keyword.control"},
+				"2": {"patterns": [{"include": "#identifier"}]}
+			},
+			"end": "}",
+			"patterns": [{"include": "#expression"}]
+		},
+		"function_def": {
+			"patterns": [
+				{
+					"match": "(fn)\\s+([a-zA-Z_][a-zA-Z0-9_]*)?\\s*(.*)\\s*\\((.*)\\)\\s*(->)",
+					"captures": {
+						"1": {"name": "keyword.control"},
+						"2": {"patterns": [
+							{"include": "#identifier"}
+						]},
+						"3": {"patterns": [
+							{"include": "#generics"}
+						]},
+						"4": {"patterns": [
+							{"include": "#typehinted"}
+						]},
+						"5": {"name": "keyword.operator.arithmetic"}
+					}
+				},
+				{
+					"begin": "(fn)\\s+([a-zA-Z_][a-zA-Z0-9_]*)?\\s*(.*)\\s*\\((.*)\\)\\s*{",
+					"beginCaptures": {
+						"1": {"name": "keyword.control"},
+						"2": {"patterns": [
+							{"include": "#identifier"}
+						]},
+						"3": {"patterns": [
+							{"include": "#generics"}
+						]},
+						"4": {"patterns": [
+							{"include": "#typehinted"}
+						]}
+					},
+					"end": "}",
+					"patterns": [{"include": "#expression"}]
+				}
+			]
+		},
+		"binop_expression": {
+			"patterns": [
+				{"match": "(if|then|else|while)", "name": "keyword.control"},
+				{"include": "#atomic_expression"},
+				{"include": "binop"}
+			]
+		},
+		"binop": {
+			"name": "keyword.operator.arithmetic",
+			"match": "(<:|\\+|\\-|\\*|/|\\^|%|=|\\+=|\\-=|\\*=|/=|\\^=|%=|==|!=|<|<=|>|>=|\\->|\\|>|\\||&)"
+		},
+		"colon": {
+			"name": "keyword.other",
+			"match": ":"
+		},
+		"typehinted": {
+			"patterns": [
+				{
+					"match": "([a-zA-Z_][0-9a-zA-Z_]*)\\s*(:)\\s*([^=]*)",
+					"captures": {
+						"1": {"patterns": [{"include": "#identifier"}]},
+						"2": {"patterns": [{"include": "#colon"}]},
+						"3": {"patterns": [{"include": "#type_expression"}]}
+					}
+				}
+			]
+		},
+		"type_expression": {
+			"patterns": [
+				{"match": "var", "name": "keyword.control"},
+				{"include": "#binop"},
+				{"include": "#number"},
+				{"include": "#string"},
+				{"include": "#boolean"},
+				{"include": "#type_identifier"}
+			]
+		},
+		"generics": {
+			"begin": "[",
+			"end": "]",
+			"patterns": [
+				{"include": "#type_expression"},
+				{"match": ","}
+			]
+		},
+		"atomic_expression": {
+			"patterns": [
+				{"include": "#prefix"},
+				{"include": "#scope"},
+				{"include": "#simple_expression"},
+				{"include": "#object"},
+				{"include": "#suffix"}
+			]
+		},
+		"prefix": {
+			"name": "keyword.operator.arithmetic",
+			"match": "(\\-|!)"
+		},
+		"suffix": {
+			"patterns": [
+				{
+					"match": "\\.([a-zA-Z_][a-zA-Z0-9_]*)",
+					"captures": {
+						"1": {"name": "entity.name.tag"}
+					}
+				},
+				{
+					"name": "keyword.operator.arithmetic",
+					"match": "(\\.|\\$|#)"
+				}
+			]
+		},
+		"object": {
+			"begin": "{",
+			"end": "}",
+			"patterns": [
+				{"include": "#key_colon"},
+				{"include": "#expression"},
+				{"match": ","}
+			]
+		},
+		"key_colon": {
+			"patterns": [
+				{
+					"match": "([a-zA-Z_][0-9a-zA-Z_]*)\\s*(:)",
+					"captures": {
+						"1": {"patterns": [{"include": "#key"}]},
+						"2": {"patterns": [{"include": "#colon"}]}
+					}
+				}
+			]
+		},
+		"simple_expression": {
+			"patterns": [
+				{"include": "#number"},
+				{"include": "#string"},
+				{"include": "#boolean"},
+				{"include": "#identifier"}
+			]
+		},
+		"type_identifier": {
+			"name": "entity.name.type",
+			"match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+		},
+		"identifier": {
+			"name": "entity.name.function",
+			"match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+		},
+		"key": {
+			"name": "entity.name.tag",
+			"match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+		},
+		"number": {
+			"name": "constant.numeric",
+			"match": "\\b[0-9]+(\\.[0-9]+)?\\b"
+		},
+		"string": {
+			"name": "string.quoted.double.teko",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.teko",
+					"match": "\\\\."
+				}
+			]
+		},
+		"boolean": {
+			"name": "constant.language.teko",
+			"match": "\\b(true|false)\\b"
+		}
+	},
+	"scopeName": "source.teko"
+}
