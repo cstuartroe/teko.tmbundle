@@ -34,11 +34,7 @@
 						"4": {"name": "keyword.operator.arithmetic"}
 					},
 					"end": "}",
-					"patterns": [
-						{"include": "#key_colon"},
-						{"include": "#type_expression"},
-						{"match": ","}
-					]
+					"patterns": [{"include": "#type_keys"}]
 				},
 				{
 					"match": "(type)\\s*([a-zA-Z_][a-zA-Z0-9_]*)\\s*([^=]*)\\s*(=)\\s*(.+)",
@@ -50,6 +46,18 @@
 						"5": {"patterns": [{"include": "#type_expression"}]}
 					}
 				}
+			]
+		},
+		"type_keys": {
+			"patterns": [
+				{
+					"begin": "{",
+					"end": "}",
+					"patterns": [{"include": "#type_keys"}]
+				},
+				{"include": "#key_colon"},
+				{"include": "#type_expression"},
+				{"match": ","}
 			]
 		},
 		"declaration": {
@@ -135,13 +143,17 @@
 		},
 		"type_expression": {
 			"patterns": [
-				{"match": "var", "name": "keyword.control"},
+				{"include": "#var"},
 				{"include": "#binop"},
 				{"include": "#number"},
 				{"include": "#string"},
 				{"include": "#boolean"},
 				{"include": "#type_identifier"}
 			]
+		},
+		"var": {
+			"match": "var", 
+			"name": "keyword.control"
 		},
 		"generics": {
 			"begin": "[",
@@ -183,6 +195,7 @@
 			"end": "}",
 			"patterns": [
 				{"include": "#key_colon"},
+				{"include": "#var"},
 				{"include": "#expression"},
 				{"match": ","}
 			]
